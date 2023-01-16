@@ -1,6 +1,14 @@
+#include <vk_engine.h>
 
-int main()
+int main(int argc, char* argv[])
 {
-    //todo:implement vulkan engine
-    return 0;
+	VulkanEngine engine;
+
+	engine.init();
+
+	engine.run();
+
+	engine.cleanup();
+
+	return 0;
 }
