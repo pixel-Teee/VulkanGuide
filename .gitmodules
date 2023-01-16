@@ -1,0 +1,15 @@
+[submodule "third_party/glm"]
+	path = third_party/glm
+	url = https://github.com/pixel-Teee/glm.git
+[submodule "third_party/imgui"]
+	path = third_party/imgui
+	url = https://github.com/pixel-Teee/imgui.git
+[submodule "third_party/stb_image"]
+	path = third_party/stb_image
+	url = https://github.com/nothings/stb.git
+[submodule "third_party/VkBoostrap"]
+	path = third_party/VkBootstrap
+	url = https://github.com/charles-lunarg/vk-bootstrap.git
+[submodule "third_party/vma"]
+	path = third_party/vma
+	url = https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator.git
