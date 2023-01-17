@@ -14,4 +14,5 @@ target_link_libraries(vulkan_guide VkBootstrap vma glm imgui stb_image)
 
 target_link_libraries(vulkan_guide Vulkan::Vulkan sdl2)
 
+# vulkan guide depends shader binary target
 add_dependencies(vulkan_guide Shaders)
