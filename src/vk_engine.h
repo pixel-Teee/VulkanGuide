@@ -13,7 +13,7 @@ public:
 	bool _isInitialized{ false };
 	int _frameNumber{ 0 };
 
-	VkExtent2D _windowExtent{ 1700 , 900 };
+	VkExtent2D _windowExtent{ 600 , 300 };
 
 	struct SDL_Window* _window{ nullptr };
 
@@ -65,6 +65,10 @@ public:
 	VkSemaphore _presentSemaphore, _renderSemaphore;
 	VkFence _renderFence;
 
+	VkPipelineLayout _trianglePipelineLayout;
+
+	VkPipeline _trianglePipeline;
+
 private:
 
 	void init_vulkan();
@@ -78,4 +82,26 @@ private:
 	void init_framebuffers();
 
 	void init_sync_structures();
+
+	//loads a shader module from a spir-v file, returns false if it errors
+	bool load_shader_module(const char* filePath, VkShaderModule* outShaderModule);
+
+	void init_pipelines();
+};
+
+class PipelineBuilder {
+public:
+
+	std::vector<VkPipelineShaderStageCreateInfo> _shaderStages;
+
+	VkPipelineVertexInputStateCreateInfo _vertexInputInfo;
+	VkPipelineInputAssemblyStateCreateInfo _inputAssembly;
+	VkViewport _viewport;
+	VkRect2D _scissor;
+	VkPipelineRasterizationStateCreateInfo _rasterizer;
+	VkPipelineColorBlendAttachmentState _colorBlendAttachment;
+	VkPipelineMultisampleStateCreateInfo _multisampling;
+	VkPipelineLayout _pipelineLayout;
+
+	VkPipeline build_pipeline(VkDevice device, VkRenderPass pass);
 };
