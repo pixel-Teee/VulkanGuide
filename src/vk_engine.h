@@ -34,6 +34,36 @@ struct RenderObject {
 	glm::mat4 transformMatrix;
 };
 
+struct GPUCameraData {
+	glm::mat4 view;
+	glm::mat4 proj;
+	glm::mat4 viewproj;
+};
+
+struct GPUSceneData {
+	glm::vec4 fogColor; //w is for exponent
+	glm::vec4 fogDistances; //x for min, y for max, zw unused.
+	glm::vec4 ambientColor;
+	glm::vec4 sunlightDirection; //w for sun power
+	glm::vec4 sunlightColor;
+};
+
+struct FrameData {
+	VkSemaphore _presentSemaphore, _renderSemaphore;
+	VkFence _renderFence;
+
+	VkCommandPool _commandPool;
+	VkCommandBuffer _mainCommandBuffer;
+
+	//buffer that holds a single GPUCameraData to use when rendering
+	AllocatedBuffer cameraBuffer;
+
+	VkDescriptorSet globalDescriptor;
+};
+
+//number of frames to overlap when rendering
+constexpr unsigned int FRAME_OVERLAP = 2;
+
 struct DeletionQueue
 {
 	std::deque<std::function<void()>> deletors;
@@ -140,6 +170,20 @@ public:
 	std::unordered_map<std::string, Material> _materials;
 	std::unordered_map<std::string, Mesh> _meshes;
 
+	//frame storage
+	FrameData _frames[FRAME_OVERLAP];
+
+	VkDescriptorSetLayout _globalSetLayout;
+	VkDescriptorPool _descriptorPool;
+
+	VkPhysicalDeviceProperties _gpuProperties;
+
+	GPUSceneData _sceneParameters;
+	AllocatedBuffer _sceneParameterBuffer;
+
+	//getter for the frame we are rendering to right now
+	FrameData& get_current_frame();
+
 	//create material and add it to the map
 	Material* create_material(VkPipeline pipeline, VkPipelineLayout layout, const std::string& name);
 
@@ -153,6 +197,12 @@ public:
 	void draw_objects(VkCommandBuffer cmd, RenderObject* first, int count);
 
 	void init_scene();
+
+	AllocatedBuffer create_buffer(size_t allocSize, VkBufferUsageFlags usage, VmaMemoryUsage memoryUsage);
+
+	size_t pad_uniform_buffer_size(size_t originalSize);
+
+	void init_descriptors();
 private:
 
 	void init_vulkan();
