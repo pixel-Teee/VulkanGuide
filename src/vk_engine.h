@@ -9,6 +9,14 @@
 #include <queue>
 #include <functional>
 
+#include "vk_mesh.h"//mesh 
+
+#include <glm/glm.hpp>
+
+struct MeshPushConstants {
+	glm::vec4 data;
+	glm::mat4 render_matrix;
+};
 
 struct DeletionQueue
 {
@@ -96,6 +104,19 @@ public:
 
 	DeletionQueue _mainDeletionQueue;//deletion queue
 
+	VmaAllocator _allocator;//vma lib allocator
+
+	VkPipeline _meshPipeline;//mesh pipeline
+	Mesh _triangleMesh;
+
+	VkPipelineLayout _meshPipelineLayout;
+
+	Mesh _monkeyMesh;
+
+	VkImageView _depthImageView;
+	AllocatedImage _depthImage;//VkImage and vma stats
+
+	VkFormat _depthFormat;
 private:
 
 	void init_vulkan();
@@ -114,6 +135,10 @@ private:
 	bool load_shader_module(const char* filePath, VkShaderModule* outShaderModule);
 
 	void init_pipelines();
+
+	void load_meshes();
+
+	void upload_mesh(Mesh& mesh);
 };
 
 class PipelineBuilder {
@@ -129,6 +154,8 @@ public:
 	VkPipelineColorBlendAttachmentState _colorBlendAttachment;
 	VkPipelineMultisampleStateCreateInfo _multisampling;
 	VkPipelineLayout _pipelineLayout;
+
+	VkPipelineDepthStencilStateCreateInfo _depthStencil;
 
 	VkPipeline build_pipeline(VkDevice device, VkRenderPass pass);
 };

@@ -4,6 +4,7 @@ add_library(VkBootstrap STATIC)
 add_library(glm INTERFACE)
 add_library(vma INTERFACE)
 add_library(stb_image INTERFACE)
+add_library(tinyobjloader STATIC)
 
 target_sources(VkBootstrap PRIVATE
 VkBootstrap/src/VkBootstrap.h
@@ -15,6 +16,13 @@ target_link_libraries(VkBootstrap PUBLIC Vulkan::Vulkan $<$<BOOL:UNIX>:${CMAKE_D
 #both vma and glm and header only libs so we only need the include path
 target_include_directories(vma INTERFACE vma)
 target_include_directories(glm INTERFACE glm)
+
+target_sources(tinyobjloader PRIVATE
+   tinyobjloader/tiny_obj_loader.h
+   tinyobjloader/tiny_obj_loader.cc
+)
+
+target_include_directories(tinyobjloader PUBLIC tinyobjloader)
 
 add_library(sdl2 INTERFACE)
 #set(sdl2_DIR "SDL_PATH" CACHE PATH "Path to SDL2")
