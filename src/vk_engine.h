@@ -22,8 +22,14 @@ struct MeshPushConstants {
 //They are 64 bit handles to internal driver structures anyway so storing pointers to them isn't very useful
 
 struct Material {
+	VkDescriptorSet textureSet{ VK_NULL_HANDLE };//texture defaulted to null
 	VkPipeline pipeline;
 	VkPipelineLayout pipelineLayout;
+};
+
+struct Texture {
+	AllocatedImage image;
+	VkImageView imageView;
 };
 
 struct RenderObject {
@@ -48,6 +54,10 @@ struct GPUSceneData {
 	glm::vec4 sunlightColor;
 };
 
+struct GPUObjectData {
+	glm::mat4 modelMatrix;
+};
+
 struct FrameData {
 	VkSemaphore _presentSemaphore, _renderSemaphore;
 	VkFence _renderFence;
@@ -59,6 +69,15 @@ struct FrameData {
 	AllocatedBuffer cameraBuffer;
 
 	VkDescriptorSet globalDescriptor;
+
+	AllocatedBuffer objectBuffer;//ssbo shader storage buffer
+	VkDescriptorSet objectDescriptor;
+};
+
+struct UploadContext {
+	VkFence _uploadFence;
+	VkCommandPool _commandPool;
+	VkCommandBuffer _commandBuffer;
 };
 
 //number of frames to overlap when rendering
@@ -169,17 +188,22 @@ public:
 
 	std::unordered_map<std::string, Material> _materials;
 	std::unordered_map<std::string, Mesh> _meshes;
+	std::unordered_map<std::string, Texture> _loadedTextures;
 
 	//frame storage
 	FrameData _frames[FRAME_OVERLAP];
 
 	VkDescriptorSetLayout _globalSetLayout;
+	VkDescriptorSetLayout _objectSetLayout;
+	VkDescriptorSetLayout _singleTextureSetLayout;
 	VkDescriptorPool _descriptorPool;
 
 	VkPhysicalDeviceProperties _gpuProperties;
 
 	GPUSceneData _sceneParameters;
 	AllocatedBuffer _sceneParameterBuffer;
+
+	UploadContext _uploadContext;
 
 	//getter for the frame we are rendering to right now
 	FrameData& get_current_frame();
@@ -203,6 +227,12 @@ public:
 	size_t pad_uniform_buffer_size(size_t originalSize);
 
 	void init_descriptors();
+
+	//initialize command pool and fence in the upload context
+	//instant-submit
+	//move sematic
+	//could use this from a background thread, separated from the render loop
+	void immediate_submit(std::function<void(VkCommandBuffer cmd)>&& function);
 private:
 
 	void init_vulkan();
@@ -223,6 +253,8 @@ private:
 	void init_pipelines();
 
 	void load_meshes();
+
+	void load_images();
 
 	void upload_mesh(Mesh& mesh);
 };
